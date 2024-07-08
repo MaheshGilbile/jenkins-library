@@ -13,10 +13,10 @@ def call(Map params) {
     def registry = CollectorRegistry.defaultRegistry
 
     // Define and register Prometheus metrics
-    def totalBuilds = Counter.build()
-        .name("total_builds")
-        .help("Total number of builds")
-        .register(registry)
+   // def totalBuilds = Counter.build()
+   //     .name("total_builds")
+   //     .help("Total number of builds")
+   //     .register(registry)
 
     def successBuilds = Counter.build()
         .name("success_builds")
@@ -39,7 +39,7 @@ def call(Map params) {
         .register(registry)
 
     // Set metrics values
-    totalBuilds.inc(metrics.total_builds ?: 0)
+    //totalBuilds.inc(metrics.total_builds ?: 0)
     successBuilds.inc(metrics.total_success_builds ?: 0)
     failedBuilds.inc(metrics.total_failed_builds ?: 0)
     buildTime.inc(metrics.average_build_time ?: 0)
