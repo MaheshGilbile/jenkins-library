@@ -1,6 +1,6 @@
 // vars/collectMetrics.groovy
 
-import my.package.Metrics
+import my.package.metrics
 
 def call(Map pipelineParams) {
     def metrics = new Metrics()

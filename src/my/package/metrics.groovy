@@ -2,7 +2,7 @@ package my.package
 
 import groovy.transform.Field
 
-class Metrics {
+class metrics {
     
     @Field
     static final String PUSHGATEWAY_URL = 'http://localhost:9091/metrics/job' // Adjust URL as per your Pushgateway setup
