@@ -1,14 +1,15 @@
-// metrics.groovy
+// com/example/metrics/MetricsCollector.groovy
 package com.example.metrics
 
 import jenkins.model.Jenkins
-import jenkins.branch.MultiBranchProject
-import jenkins.model.*
 
 class MetricsCollector {
-    def collectMetrics(projectName) {
+    def collectMetrics(projectName, appName) {
         def project = Jenkins.instance.getItemByFullName(projectName)
         def metrics = [:]
+
+        // Application Name
+        metrics['app_name'] = appName
 
         // Total Number of Builds per Project
         metrics['total_builds'] = project.getBuilds().size()
@@ -17,7 +18,7 @@ class MetricsCollector {
         metrics['total_success_builds'] = project.getBuilds().findAll { it.result == 'SUCCESS' }.size()
 
         // Total Failed Builds
-        metrics['total_failed_builds'] = project.getBuilds().findAll { it.result!= 'SUCCESS' }.size()
+        metrics['total_failed_builds'] = project.getBuilds().findAll { it.result != 'SUCCESS' }.size()
 
         // Average Build time
         def buildTimes = project.getBuilds().collect { it.getDuration() }
