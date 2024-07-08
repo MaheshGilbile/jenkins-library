@@ -3,6 +3,10 @@
 import io.prometheus.client.exporter.PushGateway
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Gauge
+import io.prometheus.client.Counter
+import io.prometheus.client.Summary
+
+
 
 def call(Map params) {
     def gateway = params.gateway
@@ -44,25 +48,25 @@ def call(Map params) {
         .labelNames("app_name")
         .register(registry)
 		
-    def branchName = Gauge.build()
+    def branchName = Summary.build()
         .name("branch_name")
         .help("Branch name")
         .labelNames("app_name")
         .register(registry)
 
-    def artifactoryUploadStatus = Gauge.build()
+    def artifactoryUploadStatus = Summary.build()
         .name("artifactory_upload_status")
         .help("Artifactory upload status")
         .labelNames("app_name")
         .register(registry)
 
-    def sonarScanStatus = Gauge.build()
+    def sonarScanStatus = Summary.build()
         .name("sonar_scan_status")
         .help("Sonar scan status")
         .labelNames("app_name")
         .register(registry)
 
-    def unitTestStatus = Gauge.build()
+    def unitTestStatus = Summary.build()
         .name("unit_test_status")
         .help("Unit test status")
         .labelNames("app_name")
@@ -74,10 +78,10 @@ def call(Map params) {
     failedBuilds.labels(appName).set(metrics.total_failed_builds ?: 0)
     buildTime.labels(appName).set(metrics.average_build_time ?: 0)
     successRate.labels(appName).set(metrics.success_rate ?: 0)
-    branchName.labels(appName).set(metrics.branch_name ?: "")
-    artifactoryUploadStatus.labels(appName).set(metrics.artifactory_upload_status ?: 0)
-    sonarScanStatus.labels(appName).set(metrics.sonar_scan_status ?: 0)
-    unitTestStatus.labels(appName).set(metrics.unit_test_status ?: 0)
+    branchName.labels(appName, "branch_name").observe(1)
+    artifactoryUploadStatus.labels(appName, "artifactory_upload_status").observe(1)
+    sonarScanStatus.labels(appName, "sonar_scan_status").observe(1)
+    unitTestStatus.labels(appName, "unit_test_status").observe(1)
 
     // Push metrics to Pushgateway
     try {
