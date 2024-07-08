@@ -1,3 +1,5 @@
+package org.example
+
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Gauge
 import io.prometheus.client.exporter.PushGateway
