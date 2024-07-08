@@ -3,7 +3,7 @@ package com.example.metrics
 
 import jenkins.model.Jenkins
 import jenkins.branch.MultiBranchProject
-//import jenkins.model.Run
+import jenkins.model.*
 
 class MetricsCollector {
     def collectMetrics(projectName) {
