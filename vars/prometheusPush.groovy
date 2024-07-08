@@ -51,25 +51,25 @@ def call(Map params) {
     def branchName = Summary.build()
         .name("branch_name")
         .help("Branch name")
-        .labelNames("app_name")
+        .labelNames("app_name", "branchname")
         .register(registry)
 
     def artifactoryUploadStatus = Summary.build()
         .name("artifactory_upload_status")
         .help("Artifactory upload status")
-        .labelNames("app_name")
+        .labelNames("app_name", "status")
         .register(registry)
 
     def sonarScanStatus = Summary.build()
         .name("sonar_scan_status")
         .help("Sonar scan status")
-        .labelNames("app_name")
+        .labelNames("app_name", "status")
         .register(registry)
 
     def unitTestStatus = Summary.build()
         .name("unit_test_status")
         .help("Unit test status")
-        .labelNames("app_name")
+        .labelNames("app_name", "status")
         .register(registry)
 		
     // Set metrics values
