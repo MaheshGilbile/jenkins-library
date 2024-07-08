@@ -27,6 +27,18 @@ class MetricsCollector {
         // %Success Rate of builds
         metrics['success_rate'] = (metrics['total_success_builds'] / metrics['total_builds']) * 100
 
+        // Branch Name
+        metrics['branch_name'] = project.getBuilds().last().getEnvironment().get('BRANCH_NAME')
+
+        // Artifactory Upload Status
+        metrics['artifactory_upload_status'] = project.getBuilds().last().getResult().toString() == 'SUCCESS' ? 1 : 0
+
+        // Sonar Scan Status
+        metrics['sonar_scan_status'] = project.getBuilds().last().getResult().toString() == 'SUCCESS' ? 1 : 0
+
+        // Unit Test Status
+        metrics['unit_test_status'] = project.getBuilds().last().getResult().toString() == 'SUCCESS' ? 1 : 0
+
         return metrics
     }
 }

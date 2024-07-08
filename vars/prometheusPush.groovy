@@ -43,13 +43,41 @@ def call(Map params) {
         .help("Success rate of builds")
         .labelNames("app_name")
         .register(registry)
+		
+    def branchName = Gauge.build()
+        .name("branch_name")
+        .help("Branch name")
+        .labelNames("app_name")
+        .register(registry)
 
+    def artifactoryUploadStatus = Gauge.build()
+        .name("artifactory_upload_status")
+        .help("Artifactory upload status")
+        .labelNames("app_name")
+        .register(registry)
+
+    def sonarScanStatus = Gauge.build()
+        .name("sonar_scan_status")
+        .help("Sonar scan status")
+        .labelNames("app_name")
+        .register(registry)
+
+    def unitTestStatus = Gauge.build()
+        .name("unit_test_status")
+        .help("Unit test status")
+        .labelNames("app_name")
+        .register(registry)
+		
     // Set metrics values
     totalBuilds.labels(appName).set(metrics.total_builds ?: 0)
     successBuilds.labels(appName).set(metrics.total_success_builds ?: 0)
     failedBuilds.labels(appName).set(metrics.total_failed_builds ?: 0)
     buildTime.labels(appName).set(metrics.average_build_time ?: 0)
     successRate.labels(appName).set(metrics.success_rate ?: 0)
+    branchName.labels(appName).set(metrics.branch_name ?: "")
+    artifactoryUploadStatus.labels(appName).set(metrics.artifactory_upload_status ?: 0)
+    sonarScanStatus.labels(appName).set(metrics.sonar_scan_status ?: 0)
+    unitTestStatus.labels(appName).set(metrics.unit_test_status ?: 0)
 
     // Push metrics to Pushgateway
     try {
