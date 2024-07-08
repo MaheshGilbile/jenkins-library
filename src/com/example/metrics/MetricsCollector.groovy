@@ -15,10 +15,10 @@ class MetricsCollector {
         metrics['total_builds'] = project.getBuilds().size()
 
         // Total Builds Success
-        metrics['total_success_builds'] = project.getBuilds().findAll { it.result == 'SUCCESS' }.size()
+        metrics['total_success_builds'] = project.getBuilds().findAll { it.result.toString() == 'SUCCESS' }.size()
 
         // Total Failed Builds
-        metrics['total_failed_builds'] = project.getBuilds().findAll { it.result != 'SUCCESS' }.size()
+        metrics['total_failed_builds'] = project.getBuilds().findAll { it.result.toString() != 'SUCCESS' }.size()
 
         // Average Build time
         def buildTimes = project.getBuilds().collect { it.getDuration() }
