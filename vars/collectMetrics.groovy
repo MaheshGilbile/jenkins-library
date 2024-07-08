@@ -1,31 +1,93 @@
-// vars/collectMetrics.groovy
+import io.prometheus.client.CollectorRegistry
+import io.prometheus.client.Counter
+import io.prometheus.client.Gauge
+import io.prometheus.client.exporter.PushGateway
 
-import my.package.metrics
+class CollectMetrics {
+    String jobName
+    String instanceName
 
-def call(Map pipelineParams) {
-    def metrics = new Metrics()
-
-    def collectBranchMetrics(branchName) {
-        metrics.pushToPushgateway("branch_metrics", [branch_name: branchName])
+    CollectMetrics(String jobName, String instanceName) {
+        this.jobName = jobName
+        this.instanceName = instanceName
     }
 
-    def collectBuildMetrics(buildStatus) {
-        def buildValue = buildStatus == "SUCCESS" ? 1 : 0
-        metrics.pushToPushgateway("build_metrics", [build_status: buildValue])
+    void collectBranchMetrics(String branchName) {
+        // Placeholder for SCM Checkout metrics collection
+        Gauge scmStatus = Gauge.build()
+            .name("scm_status")
+            .help("Status of SCM Checkout")
+            .labelNames("job", "instance", "branch")
+            .register()
+
+        scmStatus.labels(jobName, instanceName, branchName).set(1)
     }
 
-    def collectUnitTestMetrics(testCoverage, testStatus) {
-        metrics.pushToPushgateway("unit_test_metrics", [unit_test_coverage: testCoverage, unit_test_status: testStatus == "SUCCESS" ? 1 : 0])
+    void buildStageMetrics(boolean buildStatus, long buildDuration) {
+        // Build Stage metrics
+        Gauge buildStatusGauge = Gauge.build()
+            .name("build_status")
+            .help("Status of Build Stage")
+            .labelNames("job", "instance")
+            .register()
+
+        buildStatusGauge.labels(jobName, instanceName).set(buildStatus ? 1 : 0)
+
+        // Build duration metrics
+        Gauge buildDurationGauge = Gauge.build()
+            .name("build_duration_seconds")
+            .help("Duration of Build Stage in seconds")
+            .labelNames("job", "instance")
+            .register()
+
+        buildDurationGauge.labels(jobName, instanceName).set(buildDuration / 1000.0) // Convert milliseconds to seconds
     }
 
-    def collectSonarMetrics(sonarMetrics) {
-        metrics.pushToPushgateway("sonar_metrics", sonarMetrics)
+    void unitTestCoverageMetrics(int coveragePercentage) {
+        // Unit Test Coverage metrics
+        Gauge unitTestCoverage = Gauge.build()
+            .name("unit_test_coverage")
+            .help("Unit Test Coverage Percentage")
+            .labelNames("job", "instance")
+            .register()
+
+        unitTestCoverage.labels(jobName, instanceName).set(coveragePercentage)
     }
 
-    def collectArtifactoryMetrics(artifactoryStatus) {
-        def artifactoryValue = artifactoryStatus == "SUCCESS" ? 1 : 0
-        metrics.pushToPushgateway("artifactory_metrics", [artifactory_upload_status: artifactoryValue])
+    void sonarAnalysisMetrics(boolean sonarStatus) {
+        // Sonar Analysis metrics
+        Gauge sonarStatusGauge = Gauge.build()
+            .name("sonar_analysis_status")
+            .help("Status of SonarQube Analysis")
+            .labelNames("job", "instance")
+            .register()
+
+        sonarStatusGauge.labels(jobName, instanceName).set(sonarStatus ? 1 : 0)
     }
 
-    return this
+    void artifactoryUploadMetrics(boolean uploadStatus) {
+        // Artifactory Upload metrics
+        Gauge artifactoryStatusGauge = Gauge.build()
+            .name("artifactory_upload_status")
+            .help("Status of Artifactory Upload")
+            .labelNames("job", "instance")
+            .register()
+
+        artifactoryStatusGauge.labels(jobName, instanceName).set(uploadStatus ? 1 : 0)
+    }
+
+    void pushMetricsToPrometheus() {
+        // Example of pushing metrics to Prometheus via PushGateway
+        String pushGatewayAddress = "http://localhost:9091" // Replace with your PushGateway address
+        PushGateway pushGateway = new PushGateway(pushGatewayAddress)
+
+        try {
+            pushGateway.push(CollectorRegistry.defaultRegistry, jobName)
+            println("Metrics pushed successfully to Prometheus PushGateway")
+        } catch (Exception e) {
+            println("Failed to push metrics to Prometheus PushGateway: ${e.message}")
+        }
+    }
 }
+
+return new CollectMetrics(jobName, instanceName)
