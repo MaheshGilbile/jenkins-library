@@ -1,5 +1,4 @@
 import io.prometheus.client.CollectorRegistry
-import io.prometheus.client.Counter
 import io.prometheus.client.Gauge
 import io.prometheus.client.exporter.PushGateway
 
@@ -13,7 +12,6 @@ class CollectMetrics {
     }
 
     void collectBranchMetrics(String branchName) {
-        // Placeholder for SCM Checkout metrics collection
         Gauge scmStatus = Gauge.build()
             .name("scm_status")
             .help("Status of SCM Checkout")
@@ -24,7 +22,6 @@ class CollectMetrics {
     }
 
     void buildStageMetrics(boolean buildStatus, long buildDuration) {
-        // Build Stage metrics
         Gauge buildStatusGauge = Gauge.build()
             .name("build_status")
             .help("Status of Build Stage")
@@ -33,7 +30,6 @@ class CollectMetrics {
 
         buildStatusGauge.labels(jobName, instanceName).set(buildStatus ? 1 : 0)
 
-        // Build duration metrics
         Gauge buildDurationGauge = Gauge.build()
             .name("build_duration_seconds")
             .help("Duration of Build Stage in seconds")
@@ -44,7 +40,6 @@ class CollectMetrics {
     }
 
     void unitTestCoverageMetrics(int coveragePercentage) {
-        // Unit Test Coverage metrics
         Gauge unitTestCoverage = Gauge.build()
             .name("unit_test_coverage")
             .help("Unit Test Coverage Percentage")
@@ -55,7 +50,6 @@ class CollectMetrics {
     }
 
     void sonarAnalysisMetrics(boolean sonarStatus) {
-        // Sonar Analysis metrics
         Gauge sonarStatusGauge = Gauge.build()
             .name("sonar_analysis_status")
             .help("Status of SonarQube Analysis")
@@ -66,7 +60,6 @@ class CollectMetrics {
     }
 
     void artifactoryUploadMetrics(boolean uploadStatus) {
-        // Artifactory Upload metrics
         Gauge artifactoryStatusGauge = Gauge.build()
             .name("artifactory_upload_status")
             .help("Status of Artifactory Upload")
@@ -77,7 +70,6 @@ class CollectMetrics {
     }
 
     void pushMetricsToPrometheus() {
-        // Example of pushing metrics to Prometheus via PushGateway
         String pushGatewayAddress = "http://localhost:9091" // Replace with your PushGateway address
         PushGateway pushGateway = new PushGateway(pushGatewayAddress)
 
