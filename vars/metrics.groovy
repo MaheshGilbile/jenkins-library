@@ -17,7 +17,7 @@ class Metrics {
 
 def call(String projectName, String appName, Map env) {
     def metricsCollector = new MetricsCollector()
-    def metrics = metricsCollector.collectMetrics(projectName, appName, env)
+    def metrics = metricsCollector.recordMetrics(projectName, appName, env)
 
     return new Metrics(
         projectName: projectName,
