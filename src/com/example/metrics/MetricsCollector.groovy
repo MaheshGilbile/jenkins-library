@@ -1,44 +1,54 @@
-// com/example/metrics/MetricsCollector.groovy
 package com.example.metrics
 
 import jenkins.model.Jenkins
+import groovy.sql.Sql
 
 class MetricsCollector {
-    def collectMetrics(projectName, appName) {
-        def project = Jenkins.instance.getItemByFullName(projectName)
-        def metrics = [:]
+    def recordMetrics(stageName, status, env) {
+        def project = Jenkins.instance.getItemByFullName(env.JOB_NAME)
+        def totalBuilds = project.getBuilds().size()
+        def totalSuccessBuilds = project.getBuilds().findAll { it.result.toString() == 'SUCCESS' }.size()
+        def totalFailedBuilds = totalBuilds - totalSuccessBuilds
+        def totalSuccessRate = totalBuilds > 0 ? (totalSuccessBuilds / totalBuilds) * 100.0 : 0.0
 
-        // Application Name
-        metrics['app_name'] = appName
+        def metrics = [
+            'stage_name': stageName,
+            'status': status,
+            'app_name': env.APP_NAME,
+            'app_shortname': env.APP_SHORTNAME ?: 'Unknown',
+            'app_id': env.APP_ID ?: 'Unknown',
+            'branch_name': env.BRANCH_NAME,
+            'total_success_builds': totalSuccessBuilds,
+            'total_failed_builds': totalFailedBuilds,
+            'total_success_rate': totalSuccessRate
+        ]
+        insertMetricsIntoDatabase(metrics, env)
+    }
 
-        // Total Number of Builds per Project
-        metrics['total_builds'] = project.getBuilds().size()
+    def insertMetricsIntoDatabase(metrics, env) {
+        def sql = Sql.newInstance(env.DB_URL, env.DB_USER, env.DB_PASS, 'org.postgresql.Driver')
 
-        // Total Builds Success
-        metrics['total_success_builds'] = project.getBuilds().findAll { it.result.toString() == 'SUCCESS' }.size()
-
-        // Total Failed Builds
-        metrics['total_failed_builds'] = project.getBuilds().findAll { it.result.toString() != 'SUCCESS' }.size()
-
-        // Average Build time
-        def buildTimes = project.getBuilds().collect { it.getDuration() }
-        metrics['average_build_time'] = buildTimes.sum() / buildTimes.size()
-
-        // %Success Rate of builds
-        metrics['success_rate'] = (metrics['total_success_builds'] / metrics['total_builds']) * 100
-
-        // Branch Name
-        metrics['branch_name'] = project.getBuilds().last().getEnvironment().get('BRANCH_NAME')
-
-        // Artifactory Upload Status
-        metrics['artifactory_upload_status'] = project.getBuilds().last().getResult().toString() == 'SUCCESS' ? 'SUCCESS' : 'FAILED'
-
-        // Sonar Scan Status
-        metrics['sonar_scan_status'] = project.getBuilds().last().getResult().toString() == 'SUCCESS' ? 'SUCCESS' : 'FAILED'
-
-        // Unit Test Status
-        metrics['unit_test_status'] = project.getBuilds().last().getResult().toString() == 'SUCCESS' ? 'SUCCESS' : 'FAILED'
-
-        return metrics
+        try {
+            sql.execute("INSERT INTO AppFitMetrics (application_name, application_shortname, application_id, branch_name, scm_status, unit_test_status, sonar_status, artifactory_upload, total_success_builds, total_failed_builds, total_success_rate, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                    metrics['app_name'],
+                    metrics['app_shortname'],
+                    metrics['app_id'],
+                    metrics['branch_name'],
+                    metrics['stage_name'] == 'SCM Checkout' ? metrics['status'] : '',
+                    metrics['stage_name'] == 'Unit Test Coverage' ? metrics['status'] : '',
+                    metrics['stage_name'] == 'Sonar Scanning' ? metrics['status'] : '',
+                    metrics['stage_name'] == 'Artifactory Upload' ? metrics['status'] : '',
+                    metrics['total_success_builds'],
+                    metrics['total_failed_builds'],
+                    metrics['total_success_rate'],
+                    new Date() // created_at
+                ])
+            println("Metrics successfully inserted into PostgreSQL database")
+        } catch (Exception e) {
+            println("Failed to insert metrics into PostgreSQL database: ${e.message}")
+        } finally {
+            sql.close()
+        }
     }
 }
