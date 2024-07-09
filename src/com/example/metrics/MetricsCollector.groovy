@@ -2,7 +2,7 @@ package com.example.metrics
 
 import jenkins.model.Jenkins
 import groovy.sql.*
-@Grab(group='org.postgresql', module='postgresql', version='42.2.5')
+@Grab(group='org.postgresql', module='postgresql', version='42.7.2')
 
 
 class MetricsCollector {
