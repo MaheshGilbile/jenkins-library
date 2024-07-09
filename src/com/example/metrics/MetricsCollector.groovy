@@ -2,6 +2,8 @@ package com.example.metrics
 
 import jenkins.model.Jenkins
 import groovy.sql.Sql
+@Grab(group='org.postgresql', module='postgresql', version='42.2.5')
+
 
 class MetricsCollector {
     def recordMetrics(stageName, status, env) {
