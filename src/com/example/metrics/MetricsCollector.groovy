@@ -2,16 +2,15 @@ package com.example.metrics
 
 import groovy.sql.Sql
 import jenkins.model.Jenkins
-import java.util.Date
-import java.util.Map
+import java.util.*
 
 @Grab(group='org.postgresql', module='postgresql', version='42.7.2')
 
 class MetricsCollector {
 
     // Method to record metrics for each stage
-    def recordMetrics(java.lang.String stageName, java.lang.String status, java.lang.String jobName, java.lang.String appName, java.lang.String AppShortName, java.lang.String branchName, int appId ) {
-        def project = Jenkins.instance.getItemByFullName(jobName)
+    def recordMetrics(String stageName, String status, Map env) {
+        def project = Jenkins.instance.getItemByFullName(env.JOB_NAME)
         def totalBuilds = project.getBuilds().size()
         def totalSuccessBuilds = project.getBuilds().findAll { it.result.toString() == 'SUCCESS' }.size()
         def totalFailedBuilds = totalBuilds - totalSuccessBuilds
@@ -20,10 +19,10 @@ class MetricsCollector {
         def metrics = [
             'stage_name': stageName,
             'status': status,
-            'app_name': appName,
-            'app_shortname': AppShortName ?: 'Unknown',
-            'app_id': appId ?: 'Unknown',
-            'branch_name': branchName,
+            'app_name': env.APP_NAME,
+            'app_shortname': env.APP_SHORTNAME ?: 'Unknown',
+            'app_id': env.APP_ID ?: 'Unknown',
+            'branch_name': env.BRANCH_NAME,
             'total_success_builds': totalSuccessBuilds,
             'total_failed_builds': totalFailedBuilds,
             'total_success_rate': totalSuccessRate
