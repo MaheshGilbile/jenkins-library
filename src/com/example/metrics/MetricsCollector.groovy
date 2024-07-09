@@ -5,10 +5,9 @@ import java.util.Date
 
 class MetricsCollector {
 
-    def recordMetrics(Map metricsMap) {
+    def recordMetrics(Map metricsMap, Map env) {
         def stageName = metricsMap.stageName
         def status = metricsMap.status
-        def env = metricsMap.env
 
         // Additional metrics collection logic as needed
         def totalSuccessBuilds = getSuccessBuildCount(env.JOB_NAME)
@@ -28,7 +27,7 @@ class MetricsCollector {
             total_success_rate: totalSuccessRate
         ]
 
-        insertMetricsIntoDatabase(metrics)
+        insertMetricsIntoDatabase(metrics, env)
     }
 
     private def getSuccessBuildCount(String jobName) {
@@ -50,7 +49,7 @@ class MetricsCollector {
         totalBuilds > 0 ? (successBuilds / totalBuilds.toDouble()) * 100.0 : 0.0
     }
 
-    private def insertMetricsIntoDatabase(Map metrics) {
+    private def insertMetricsIntoDatabase(Map metrics, Map env) {
         def sql = Sql.newInstance(env.DB_URL, env.DB_USER, env.DB_PASS, 'org.postgresql.Driver')
 
         try {
