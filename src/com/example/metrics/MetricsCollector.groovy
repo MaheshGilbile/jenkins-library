@@ -1,11 +1,13 @@
 package com.example.metrics
 
 import jenkins.model.Jenkins
-import groovy.sql.*
+import groovy.sql.Sql
+import java.util.Date
+
 @Grab(group='org.postgresql', module='postgresql', version='42.7.2')
 
-
 class MetricsCollector {
+
     def recordMetrics(stageName, status, env) {
         def project = Jenkins.instance.getItemByFullName(env.JOB_NAME)
         def totalBuilds = project.getBuilds().size()
@@ -24,6 +26,7 @@ class MetricsCollector {
             'total_failed_builds': totalFailedBuilds,
             'total_success_rate': totalSuccessRate
         ]
+
         insertMetricsIntoDatabase(metrics, env)
     }
 
@@ -31,7 +34,10 @@ class MetricsCollector {
         def sql = Sql.newInstance(env.DB_URL, env.DB_USER, env.DB_PASS, 'org.postgresql.Driver')
 
         try {
-            sql.execute("INSERT INTO AppFitMetrics (application_name, application_shortname, application_id, branch_name, scm_status, unit_test_status, sonar_status, artifactory_upload, total_success_builds, total_failed_builds, total_success_rate, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            sql.execute("""
+                INSERT INTO AppFitMetrics (application_name, application_shortname, application_id, branch_name, scm_status, unit_test_status, sonar_status, artifactory_upload, total_success_builds, total_failed_builds, total_success_rate, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
                 [
                     metrics['app_name'],
                     metrics['app_shortname'],
@@ -44,7 +50,7 @@ class MetricsCollector {
                     metrics['total_success_builds'],
                     metrics['total_failed_builds'],
                     metrics['total_success_rate'],
-                    new Date() // created_at
+                    new Date()
                 ])
             println("Metrics successfully inserted into PostgreSQL database")
         } catch (Exception e) {
