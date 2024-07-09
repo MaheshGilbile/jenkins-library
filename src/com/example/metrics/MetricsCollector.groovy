@@ -28,7 +28,7 @@ class MetricsCollector {
             total_success_rate: totalSuccessRate
         ]
 
-        insertMetricsIntoDatabase(metrics, env)
+        insertMetricsIntoDatabase(metrics)
     }
 
     private def getSuccessBuildCount(String jobName) {
@@ -50,7 +50,7 @@ class MetricsCollector {
         totalBuilds > 0 ? (successBuilds / totalBuilds.toDouble()) * 100.0 : 0.0
     }
 
-    private def insertMetricsIntoDatabase(Map metrics, Map env) {
+    private def insertMetricsIntoDatabase(Map metrics) {
         def sql = Sql.newInstance(env.DB_URL, env.DB_USER, env.DB_PASS, 'org.postgresql.Driver')
 
         try {
