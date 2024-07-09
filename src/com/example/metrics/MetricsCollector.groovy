@@ -10,8 +10,8 @@ import java.util.Map
 class MetricsCollector {
 
     // Method to record metrics for each stage
-    def recordMetrics(String stageName, String status, Map env) {
-        def project = Jenkins.instance.getItemByFullName(env.JOB_NAME)
+    def recordMetrics(String stageName, String status, String jobName, String appName, String AppShortName, String branchName, Int appId ) {
+        def project = Jenkins.instance.getItemByFullName(jobName)
         def totalBuilds = project.getBuilds().size()
         def totalSuccessBuilds = project.getBuilds().findAll { it.result.toString() == 'SUCCESS' }.size()
         def totalFailedBuilds = totalBuilds - totalSuccessBuilds
@@ -20,10 +20,10 @@ class MetricsCollector {
         def metrics = [
             'stage_name': stageName,
             'status': status,
-            'app_name': env.APP_NAME,
-            'app_shortname': env.APP_SHORTNAME ?: 'Unknown',
-            'app_id': env.APP_ID ?: 'Unknown',
-            'branch_name': env.BRANCH_NAME,
+            'app_name': appName,
+            'app_shortname': AppShortName ?: 'Unknown',
+            'app_id': appId ?: 'Unknown',
+            'branch_name': branchName,
             'total_success_builds': totalSuccessBuilds,
             'total_failed_builds': totalFailedBuilds,
             'total_success_rate': totalSuccessRate
