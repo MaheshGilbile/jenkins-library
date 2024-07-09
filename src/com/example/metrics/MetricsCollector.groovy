@@ -3,13 +3,14 @@ package com.example.metrics
 import groovy.sql.Sql
 import jenkins.model.Jenkins
 import java.util.Date
+import java.util.Map
 
 @Grab(group='org.postgresql', module='postgresql', version='42.7.2')
 
 class MetricsCollector {
 
     // Method to record metrics for each stage
-    def recordMetrics(stageName, status, Map env) {
+    def recordMetrics(String stageName, String status, Map env) {
         def project = Jenkins.instance.getItemByFullName(env.JOB_NAME)
         def totalBuilds = project.getBuilds().size()
         def totalSuccessBuilds = project.getBuilds().findAll { it.result.toString() == 'SUCCESS' }.size()
