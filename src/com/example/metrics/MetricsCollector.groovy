@@ -9,7 +9,7 @@ import java.util.*
 class MetricsCollector {
 
     // Method to record metrics for each stage
-    def recordMetrics(String stageName, String status, Map env) {
+    def recordMetrics(java.lang.String stageName, java.lang.String status, java.util.Map env) {
         def project = Jenkins.instance.getItemByFullName(env.JOB_NAME)
         def totalBuilds = project.getBuilds().size()
         def totalSuccessBuilds = project.getBuilds().findAll { it.result.toString() == 'SUCCESS' }.size()
